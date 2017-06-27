@@ -2,57 +2,103 @@ package com.suboo.firstgame;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import java.util.Random;
 
 public class MyFirstGame extends ApplicationAdapter
 {
-	private Logger logger;
-	private boolean renderInterrupted = true;
+	private static final float SCENE_WIDTH = 12.8f;
+	private static final float SCENE_HEIGHT = 7.2f;
+	private static final float WORLD_TO_SCREEN = 1.0f/100.0f;
+	private static final Color BACKGROUND_COLOR = new Color(0.4f, 0.4f, 0.4f, 1.0f);
+	
+	private final Random rand = new Random();
+	
+	private OrthographicCamera camera;
+	private Viewport viewport;
+	private SpriteBatch batch;
+	private TextureAtlas atlas;
+	private Array<AtlasRegion> sonicStand;
+	private Array<AtlasRegion> sonicLookUp;
+	
+	private int renderNum = 0;
+	private int standIndex = 0;
 	
 	@Override
 	public void create ()
 	{
-		logger = new Logger("Application lifecycle", Logger.INFO);
-		logger.info("create");
+		camera = new OrthographicCamera();
+		viewport = new FitViewport(SCENE_WIDTH, SCENE_HEIGHT, camera);
+		batch = new SpriteBatch();
+		atlas = new TextureAtlas(Gdx.files.internal("images/sonic.atlas"));
+		sonicStand = atlas.findRegions("sonic_stand");
+		sonicLookUp = atlas.findRegions("sonic_lookup");
 	}
 
 	@Override
 	public void render ()
 	{
-		if (renderInterrupted)
+		Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		int width = sonicStand.get(0).getRegionWidth();
+		int height = sonicStand.get(0).getRegionHeight();
+		float originX = width/2.0f;
+		float originY = height/2.0f;
+		renderNum++;
+		if(renderNum == 8)
 		{
-			logger.info("render");
-			renderInterrupted = false;
+			renderNum = 0;
+			standIndex++;
+			if(standIndex >= sonicStand.size)
+				standIndex = 0;
 		}
+		
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		batch.draw(sonicStand.get(standIndex), -originX, -originY, originX, originY, width, height, WORLD_TO_SCREEN, WORLD_TO_SCREEN, 0);
+		for(int i = 0; i < sonicLookUp.size; i++)
+		{
+			batch.draw(sonicLookUp.get(i), -12.8f/10*(i+1)-originX, -7.2f/10*(i+1)-originY, originX, originY, width, height, WORLD_TO_SCREEN, WORLD_TO_SCREEN, 0);
+		}
+		batch.end();
 	}
 	
 	@Override
 	public void dispose ()
 	{
-		logger.info("dispose");
+		batch.dispose();
+		atlas.dispose();
 	}
 	
 	@Override
 	public void resize(int width, int height)
 	{
-		logger.info("resized");
-		renderInterrupted = true;
+		viewport.update(width, height, false);
 	}
 	
 	@Override
 	public void pause()
 	{
-		logger.info("pause");
-		renderInterrupted = true;
+
 	}
 	
 	@Override
 	public void resume()
 	{
-		logger.info("resume");
-		renderInterrupted = true;
+
 	}
 }

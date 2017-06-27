@@ -1,0 +1,78 @@
+package com.suboo.firstgame;
+
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+
+public class MyFirstGame extends ApplicationAdapter
+{
+	private static final float SCENE_WIDTH = 12.8f;
+	private static final float SCENE_HEIGHT = 7.2f;
+	private static final float WORLD_TO_SCREEN = 1.0f/100.0f;
+	private static final Color BACKGROUND_COLOR = new Color(0.4f, 0.4f, 0.4f, 1.0f);
+	
+	private OrthographicCamera camera;
+	private Viewport viewport;
+	private SpriteBatch batch;
+	private Texture texture;
+	
+	@Override
+	public void create ()
+	{
+		camera = new OrthographicCamera();
+		viewport = new FitViewport(SCENE_WIDTH, SCENE_HEIGHT, camera);
+		batch = new SpriteBatch();
+		texture = new Texture(Gdx.files.internal("images/sonic_stand_1.png"));
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+	}
+
+	@Override
+	public void render ()
+	{
+		Gdx.gl.glClearColor(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		int width = texture.getWidth();
+		int height = texture.getHeight();
+		float originX = width/2.0f;
+		float originY = width/2.0f;
+		
+		batch.setProjectionMatrix(camera.combined);
+		batch.begin();
+		batch.draw(texture, -originX, -originY, originX, originY, width, height, WORLD_TO_SCREEN*4, WORLD_TO_SCREEN*4, 0, 0, 0, width, height, false, false);
+		batch.end();
+	}
+	
+	@Override
+	public void dispose ()
+	{
+		batch.dispose();
+		texture.dispose();
+	}
+	
+	@Override
+	public void resize(int width, int height)
+	{
+		viewport.update(width, height, false);
+	}
+	
+	@Override
+	public void pause()
+	{
+
+	}
+	
+	@Override
+	public void resume()
+	{
+
+	}
+}
